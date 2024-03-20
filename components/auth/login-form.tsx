@@ -2,6 +2,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useTransition, useState } from 'react';
 import { LoginSchema } from '@/schemas';
 import {
   Form,
@@ -13,12 +14,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import CardWrapper from '@/components/auth/card-wrapper';
+import { login } from '@/actions/login';
 
 export function LoginForm() {
+  const [isPeding, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>();
   // 1. Define your form.
 
   //z.infer 是 Zod 库中的一个工具函数，用于从 Zod schema 中推断出相应的 TypeScript 类型 (LoginSchema中定义了什么对象)
@@ -34,15 +37,22 @@ export function LoginForm() {
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof LoginSchema>) {
+    setError('');
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
+    startTransition(() => {
+      login(values).then((data) => {
+        if (data) {
+          setError(data.error);
+        }
+      });
+    });
   }
 
   return (
     <CardWrapper
       name="🔒登録"
-      desc="ユーザー名とパスワードを入力してください！"
+      errorMessage={error}
       backButtonHref="/auth/sing-in"
       backButtonLabel="新規登録"
       showSocial
@@ -62,12 +72,10 @@ export function LoginForm() {
                       <Input
                         placeholder="phoenixrever@gmail.com"
                         {...field}
+                        disabled={isPeding}
                         type="email"
                       />
                     </FormControl>
-                    <FormDescription>
-                      {/* This is your public display name. */}
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -81,11 +89,8 @@ export function LoginForm() {
                   <FormItem>
                     <FormLabel>パスワード：</FormLabel>
                     <FormControl>
-                      <Input placeholder="" {...field} />
+                      <Input placeholder="" {...field} disabled={isPeding} />
                     </FormControl>
-                    <FormDescription>
-                      {/* This is your public display name. */}
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

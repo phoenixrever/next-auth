@@ -2,7 +2,8 @@ import * as z from 'zod';
 
 //接收string 参数
 async function checkIfEmailIsValid(email: string) {
-  return false;
+  if (email === 'phoenixrever@gmail.com') return false;
+  return true;
 }
 
 //z.object() 是 Zod 库中用于声明一个对象模式的方法,并且可以在该对象中定义各种属性及其验证规则。
