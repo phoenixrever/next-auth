@@ -19,3 +19,16 @@ export const LoginSchema = z.object({
     }, 'This email is aready registed!'),
   password: z.string(),
 });
+
+export const SignInSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: 'This field has to be filled.' })
+    .email('This is not a valid email.'),
+  password: z.string().min(1, {
+    message: 'password is not less than 6 numbers',
+  }),
+  username: z.string().min(1, {
+    message: 'name is required',
+  }),
+});
